@@ -1,17 +1,15 @@
 #include <iostream>
-#include "Square.h"
+#include <string>
 
 using namespace std;
 
 class Board {
 
 public:
-	Board();
-
-private:
-
-	struct GameBoard {
-		Square board[9][9];
-	};
+	Board();	
+	string toString();
+	void placePawn(int row, int col);
+	void removePawn(int row, int col);
+	void setPawns();
 
 };

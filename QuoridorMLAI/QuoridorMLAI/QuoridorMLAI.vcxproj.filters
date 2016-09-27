@@ -22,17 +22,9 @@
     <Filter Include="Source Files\MLAI">
       <UniqueIdentifier>{ba30672b-42d2-4e34-b7ae-4a2ec6435756}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Board.h">
-      <Filter>Source Files\Board</Filter>
-    </ClInclude>
-    <ClInclude Include="Square.h">
-      <Filter>Source Files\Board</Filter>
-    </ClInclude>
-    <ClInclude Include="Edge.h">
-      <Filter>Source Files\Board</Filter>
-    </ClInclude>
+    <Filter Include="Header Files\Board">
+      <UniqueIdentifier>{43c5e718-9a18-43f6-9f41-cc2afc6bf0d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp">
@@ -41,5 +33,10 @@
     <ClCompile Include="GameClient.cpp">
       <Filter>Source Files\GameClient</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Board.h">
+      <Filter>Header Files\Board</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

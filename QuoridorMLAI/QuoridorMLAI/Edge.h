@@ -1,5 +1,5 @@
-#include "Square.h"
+#include "Board.h"
 
-struct Edge {
-	Square one, two;
+struct NodeLink {
+	Square link;
 };
