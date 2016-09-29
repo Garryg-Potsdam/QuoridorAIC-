@@ -19,17 +19,23 @@ struct Pawn {
 	int col;
 };
 
+struct Wall {
+	int row, col;
+	string dir;
+};
 
-public:
-	string placeWalls(int player,int row, int col, string direction);
+public:	
+	int wallCounter = 0;
+	Wall walls[20];
 	Pawn pOne, pTwo;
 	Board();	
 	string PrintBoard();
-	string movePawn(int player, string move);	
+	bool movePawn(int player, string move);	
+	bool placeWalls(int player, int row, int col, string direction);
 
 private:
 	void setPawns();
-	string PawnMove(Pawn &player, Direction d);
+	bool PawnMove(Pawn &player, Direction d);
 	
 
 };

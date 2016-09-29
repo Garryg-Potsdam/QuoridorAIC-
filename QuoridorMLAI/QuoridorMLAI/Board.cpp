@@ -1,7 +1,6 @@
 #include "Board.h"
 
-// Square containing pointers to other squares nodes because
-// C++ is dumb
+// Square containing booleans because its easier
 struct Square {	
 	bool up, down, left, right;
 };
@@ -10,8 +9,6 @@ struct Square {
 struct GameBoard {
 	Square board[9][9];
 };
-
-
 
 
 // the actual game board
@@ -34,39 +31,54 @@ Board::Board() {
 	setPawns();
 }
 
-string Board::placeWalls(int player, int row, int col, string dir) {
-	cout << "place wall function";
+// places walls if placeable
+bool Board::placeWalls(int player, int row, int col, string dir) {
 	if (player == 1) {
 		if (pOne.wallsLeft > 0)
 			pOne.wallsLeft--;
 		else
-			return "no walls left";
+			return false;
 	} else {
 		if (pTwo.wallsLeft > 0)
 			pTwo.wallsLeft--;
 		else
-			return "no walls left";
+			return false;
 	}
-	if (dir.compare("h") == 0)
+	if (dir.compare("h") == 0) {
+		for (int i = 0; i < wallCounter; i++) {
+			if (walls[i].row == row && walls[i].col == col && walls[i].dir.compare("v") == 0)
+				return false;
+		}
 		if (col < 8 && gb.board[row][col].down && gb.board[row][col + 1].down) {
 			gb.board[row][col].down = false;
 			gb.board[row][col + 1].down = false;
-		} else
-			return "cant place here.";
-	
-	if (dir.compare("v") == 0) {
+		}
+		else
+			return false;
+	} else {
+		for (int i = 0; i < wallCounter; i++) {
+			if (walls[i].row == row && walls[i].col == col && walls[i].dir.compare("h") == 0)
+				return false;
+		}
 		if (row < 8 && gb.board[row][col].right && gb.board[row][col + 1].right) {
 			gb.board[row][col].right = false;
 			gb.board[row + 1][col].right = false;
 		}
 		else
-			return "cant place here.";
+			return false;
 	}
-	return "Successfully placed wall!";
+	Wall temp;
+	temp.row = row;
+	temp.col = col;
+	temp.dir = dir;
+	walls[wallCounter] = temp;
+	wallCounter++;
+
+	return true;
 }
 
-
-string Board::movePawn(int player, string move) {
+// moves the pawn
+bool Board::movePawn(int player, string move) {
 	Direction d;
 	if (move.compare("up") == 0)
 		d = UP;
@@ -82,6 +94,7 @@ string Board::movePawn(int player, string move) {
 		return PawnMove(pTwo, d);
 }
 
+// sets pawns location
 void Board::setPawns() {
 	// make and placepOne
 	pOne.row = 0;
@@ -92,33 +105,34 @@ void Board::setPawns() {
 }
 
 // takes a player pawn and a direction d and moves it
-string Board::PawnMove(Pawn &player, Direction d) {
+bool Board::PawnMove(Pawn &player, Direction d) {
 	switch (d) {
 	case Board::UP:
 		if (gb.board[player.row][player.col].up) {
 			player.row -= 1;
-			return "Succesfully moved up";
+			return true;
 		}
-		return "invalid move.";
+		return false;
 	case Board::DOWN:
 		if (gb.board[player.row][player.col].down) {
 			player.row += 1;
-			return "Succesfully moved down";
+			return true;
 		}
-		return "invalid move.";
+		return false;
 	case Board::LEFT:
 		if (gb.board[player.row][player.col].left) {
 			player.col -= 1;
-			return "Succesfully moved left.";
+			return true;
 		}
-		return "invalid move.";
+		return false;
 	case Board::RIGHT:
 		if (gb.board[player.row][player.col].right) {
 			player.col += 1;
-			return "Succesfully moved right.";
+			return true;
 		}
-		return "invalid move.";
+		return false;
 	default:
+		return false;
 		break;
 	}
 }
