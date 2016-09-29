@@ -10,7 +10,15 @@ enum Direction {
 	UP,
 	DOWN,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UPLEFT,
+	UPRIGHT,
+	DOWNLEFT,
+	DOWNRIGHT,
+	LEFTUP,
+	LEFTDOWN,
+	RIGHTUP,
+	RIGHTDOWN
 };
 
 struct Pawn {
@@ -25,17 +33,19 @@ struct Wall {
 };
 
 public:	
-	int wallCounter = 0;
-	Wall walls[20];
-	Pawn pOne, pTwo;
 	Board();	
 	string PrintBoard();
 	bool movePawn(int player, string move);	
 	bool placeWalls(int player, int row, int col, string direction);
+	bool checkWinner();
+	string getWinner();
 
 private:
+	Pawn pOne, pTwo;
+	int wallCounter = 0;
+	Wall walls[20];
 	void setPawns();
-	bool PawnMove(Pawn &player, Direction d);
+	bool PawnMove(Pawn &player, Direction d, int p);
 	
 
 };

@@ -92,10 +92,26 @@ bool Board::movePawn(int player, string move) {
 		d = LEFT;
 	if (move.compare("right") == 0)
 		d = RIGHT;
+	if (move.compare("upleft") == 0)
+		d = UPLEFT;
+	if (move.compare("upright") == 0)
+		d = UPRIGHT;
+	if (move.compare("downleft") == 0)
+		d = DOWNLEFT;
+	if (move.compare("downright") == 0)
+		d = DOWNRIGHT;
+	if (move.compare("leftup") == 0)
+		d = LEFTUP;
+	if (move.compare("leftdown") == 0)
+		d = LEFTDOWN;
+	if (move.compare("rightup") == 0)
+		d = RIGHTUP;
+	if (move.compare("rightdown") == 0)
+		d = RIGHTDOWN;
 	if (player == 1)
-		return PawnMove(pOne, d);
+		return PawnMove(pOne, d, player);
 	else
-		return PawnMove(pTwo, d);
+		return PawnMove(pTwo, d, player);
 }
 
 // sets pawns location
@@ -108,37 +124,135 @@ void Board::setPawns() {
 	pTwo.col = 4;
 }
 
+bool Board::checkWinner() {
+	if (pOne.row == 8 || pTwo.row == 0)
+		return true;
+	return false;
+}
+
+string Board::getWinner() {
+	if (pOne.row == 8)
+		return "Player 1";
+	if (pTwo.row == 0)
+		return "Player 2";
+	return "No winner yet.";
+}
+
 // takes a player pawn and a direction d and moves it
-bool Board::PawnMove(Pawn &player, Direction d) {
+bool Board::PawnMove(Pawn &player, Direction d, int p) {
+	bool up, down, left, right;
+	if (p == 1) {
+		up = player.row - 1 == pTwo.row && player.col == pTwo.col;
+		down = player.row + 1 == pTwo.row && player.col == pTwo.col;
+		left = player.col - 1 == pTwo.col && player.row == pTwo.row;
+		right = player.col + 1 == pTwo.col && player.row == pTwo.row;
+	}
+	else {
+		up = player.row - 1 == pOne.row && player.col == pOne.col;
+		down = player.row + 1 == pOne.row && player.col == pOne.col;
+		left = player.col - 1 == pOne.col && player.row == pOne.row;
+		right = player.col + 1 == pOne.col && player.row == pOne.row;
+	}
 	switch (d) {
 	case Board::UP:
-		if (gb.board[player.row][player.col].up) {
+		if (up && gb.board[player.row - 1][player.col].up) {
+			player.row -= 2;
+			return true;
+		} 
+		if (gb.board[player.row][player.col].up && !up) {
 			player.row -= 1;
 			return true;
 		}
 		return false;
-	case Board::DOWN:
-		if (gb.board[player.row][player.col].down) {
+	case Board::DOWN:		 
+		if (down && gb.board[player.row + 1][player.col].down) {
+			player.row += 2;
+			return true;
+		}
+		if (gb.board[player.row][player.col].down && !down) {
 			player.row += 1;
 			return true;
 		}
 		return false;
 	case Board::LEFT:
-		if (gb.board[player.row][player.col].left) {
+		if (left && gb.board[player.row][player.col - 1].left) {
+			player.col -= 2;
+			return true;
+		}
+		if (gb.board[player.row][player.col].left && !left) {
 			player.col -= 1;
 			return true;
 		}
 		return false;
 	case Board::RIGHT:
-		if (gb.board[player.row][player.col].right) {
+		if (right && gb.board[player.row][player.col + 1].right) {
+			player.col += 2;
+			return true;
+		}
+		if (gb.board[player.row][player.col].right && !right) {
+			player.col += 1;
+			return true;
+		}
+		return false;
+	case Board::UPLEFT:
+		if (up && !gb.board[player.row - 1][player.col].up) {
+			player.row -= 1;
+			player.col -= 1;
+			return true;
+		}
+		return false;
+	case Board::UPRIGHT:
+		if (up && !gb.board[player.row - 1][player.col].up) {
+			player.row -= 1;
+			player.col += 1;
+			return true;
+		}
+		return false;
+	case Board::DOWNLEFT:
+		if (down && !gb.board[player.row + 1][player.col].down) {
+			player.row += 1;
+			player.col -= 1;
+			return true;
+		}
+		return false;
+	case Board::DOWNRIGHT:
+		if (down && !gb.board[player.row + 1][player.col].down) {
+			player.row += 1;
+			player.col += 1;
+			return true;
+		}
+		return false;
+	case Board::LEFTUP:
+		if (left && !gb.board[player.row][player.col - 1].left) {
+			player.row -= 1;
+			player.col -= 1;
+			return true;
+		}
+		return false;
+	case Board::LEFTDOWN:
+		if (left && !gb.board[player.row][player.col - 1].left) {
+			player.row += 1;
+			player.col -= 1;
+			return true;
+		}
+		return false;
+	case Board::RIGHTUP:
+		if (right && !gb.board[player.row][player.col + 1].right) {
+			player.row -= 1;
+			player.col += 1;
+			return true;
+		}
+		return false;
+	case Board::RIGHTDOWN:
+		if (right && !gb.board[player.row][player.col + 1].right) {
+			player.row += 1;
 			player.col += 1;
 			return true;
 		}
 		return false;
 	default:
 		return false;
-		break;
-	}
+	}	
 }
 
 

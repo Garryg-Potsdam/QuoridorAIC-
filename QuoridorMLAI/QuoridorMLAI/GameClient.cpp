@@ -11,21 +11,24 @@ void humanMove();
 
 int main() {	
 	startGame();
-	bool done = false;
 	cout << board.PrintBoard() << endl;
-	while (!done) {		
+	while (!board.checkWinner()) {		
 		if (humanPlayer == 1)
 			humanMove();
 		else
 			AIMove();
-		cout << board.PrintBoard() << endl;
+		cout << board.PrintBoard() << endl;		
+		if (board.checkWinner())
+			break;
 		if (humanPlayer == 2)
 			humanMove();
 		else
 			AIMove();
-		cout << board.PrintBoard() << endl;
+		cout << board.PrintBoard() << endl;		
 	};	
-	
+	cout << "The winner is " << board.getWinner() << "!" << endl;	
+	int x;
+	cin >> x;
 	return 0;
 }
 
@@ -33,7 +36,7 @@ void AIPlaceWalls() {
 	int row = -1;
 	int col = -1;
 	string direction = "";
-	string message1 = "v - for Vertical |. /n h - for Horizontal __. ";
+	string message1 = "AI Wall: v - for Vertical |. /n h - for Horizontal __. ";
 	cout << message1;
 	
 	bool success = false;
@@ -70,14 +73,14 @@ void AIPlaceWalls() {
 			direction = "";
 		}
 	}
-	cout << "The wall was successfully places at [(" << row << ", " << col << "), " << direction << "]" << endl;
+	cout << "AI Wall: The wall was successfully places at [(" << row << ", " << col << "), " << direction << "]" << endl;
 }
 
 void HumanPlaceWalls() {
 	int row = -1;
 	int col = -1;
 	string direction = "";
-	string message1 = "v - for Vertical |. /n h - for Horizontal __. ";
+	string message1 = "Human Wall: v - for Vertical |. /n h - for Horizontal __. ";
 	
 
 	bool success = false;
@@ -114,7 +117,7 @@ void HumanPlaceWalls() {
 			direction = "";
 		}
 	}
-	cout << "The wall was successfully places at [(" << row << ", " << col << "), " << direction << "]" << endl;
+	cout << "Human Wall: The wall was successfully places at [(" << row << ", " << col << "), " << direction << "]" << endl;
 }
 
 void AIMovePawn() {
@@ -122,10 +125,13 @@ void AIMovePawn() {
 	string message1 = "AI is thinkin... ";
 	string direction = "";
 	while (!success) {
-		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0) {
+		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0 &&
+			   direction.compare("upleft") != 0 && direction.compare("upright") != 0 && direction.compare("downleft") != 0 && direction.compare("downright") != 0 &&
+			   direction.compare("leftup") != 0 && direction.compare("leftdown") != 0 && direction.compare("rightup") != 0 && direction.compare("rightdown") != 0) {
 			cout << message1;
 			cin >> direction;
 		}
+		cout << direction;
 		success = board.movePawn(ai, direction);
 		if (!success) {
 			message1 = "Invalid move try again. " + message1;
@@ -141,7 +147,9 @@ void HumanMovePawn() {
 	string direction = "";
 	string message1 = "Pick a direction human. (up, down, left, right): ";
 	while (!success) {
-		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0) {
+		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0 &&
+			direction.compare("upleft") != 0 && direction.compare("upright") != 0 && direction.compare("downleft") != 0 && direction.compare("downright") != 0 &&
+			direction.compare("leftup") != 0 && direction.compare("leftdown") != 0 && direction.compare("rightup") != 0 && direction.compare("rightdown") != 0) {
 			cout << message1;
 			cin >> direction;
 		}
