@@ -52,6 +52,8 @@ bool Board::placeWalls(int player, int row, int col, string dir) {
 		if (col < 8 && gb.board[row][col].down && gb.board[row][col + 1].down) {
 			gb.board[row][col].down = false;
 			gb.board[row][col + 1].down = false;
+			gb.board[row + 1][col].up = false;
+			gb.board[row + 1][col + 1].up = false;
 		}
 		else
 			return false;
@@ -63,6 +65,8 @@ bool Board::placeWalls(int player, int row, int col, string dir) {
 		if (row < 8 && gb.board[row][col].right && gb.board[row][col + 1].right) {
 			gb.board[row][col].right = false;
 			gb.board[row + 1][col].right = false;
+			gb.board[row][col + 1].left = false;
+			gb.board[row + 1][col + 1].left = false;
 		}
 		else
 			return false;
