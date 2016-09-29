@@ -145,7 +145,7 @@ void AIMovePawn() {
 void HumanMovePawn() {	
 	bool success = false;
 	string direction = "";
-	string message1 = "Pick a direction human. (up, down, left, right): ";
+	string message1 = "Pick a direction human. (up(left,right), down(left,right), left(up, down), right(up, down)): ";
 	while (!success) {
 		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0 &&
 			direction.compare("upleft") != 0 && direction.compare("upright") != 0 && direction.compare("downleft") != 0 && direction.compare("downright") != 0 &&
