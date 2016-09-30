@@ -1,21 +1,20 @@
 #include "Board.h"
 
 // Square containing booleans because its easier
-struct Square {	
-	bool up, down, left, right;
-};
 
-// The game board of squares
-struct GameBoard {
-	Square board[9][9];
-};
 
 
 // the actual game board
-GameBoard gb;
+
 
 // Constructor for setting up the board
-Board::Board() {	
+Board::Board() {
+	for (int row = 0; row < 9; row++)
+		for (int col = 0; col < 9; col++) {
+			gb.board[row][col].row = row;
+			gb.board[row][col].col = col;
+			gb.board[row][col].seen = false;
+		}
 	for (int row = 0; row < 9; row++) {
 		for (int col = 0; col < 9; col++) {
 			if (row != 0) // Top Wall
@@ -29,6 +28,78 @@ Board::Board() {
 		}
 	}
 	setPawns();
+}
+
+bool Board::checkNotBlocked(int player) {
+	queue<Square> q;
+	bool check = false;
+	// check player 1
+	gb.board[pOne.row][pOne.col].seen = true;
+	q.push(gb.board[pOne.row][pOne.col]);	
+	while (!q.empty()) {
+		Square temp = q.front();
+		q.pop();
+		if (temp.row == 8) {
+			check = true;
+			break;
+		}
+		if (temp.up && !gb.board[temp.row - 1][temp.col].seen) {
+			gb.board[temp.row - 1][temp.col].seen = true;
+			q.push(gb.board[temp.row - 1][temp.col]);
+		}
+		if (temp.down && !gb.board[temp.row + 1][temp.col].seen) {
+			gb.board[temp.row + 1][temp.col].seen = true;
+			q.push(gb.board[temp.row + 1][temp.col]);
+		}
+		if (temp.left && !gb.board[temp.row][temp.col - 1].seen) {
+			gb.board[temp.row][temp.col - 1].seen = true;
+			q.push(gb.board[temp.row][temp.col - 1]);
+		}
+		if (temp.right && !gb.board[temp.row][temp.col + 1].seen) {
+			gb.board[temp.row][temp.col + 1].seen = true;
+			q.push(gb.board[temp.row][temp.col + 1]);
+		}
+	}
+	while (!q.empty())
+		q.pop();
+	for (int row = 0; row < 9; row++)
+		for (int col = 0; col < 9; col++)
+			gb.board[row][col].seen = false;
+	if (!check)
+		return check;
+	check = false;
+	// check player 2
+	q.push(gb.board[pTwo.row][pTwo.col]);
+	gb.board[pTwo.row][pTwo.col].seen = true;
+	while (!q.empty()) {
+		Square temp = q.front();
+		q.pop();
+		if (temp.row == 0) {
+			check = true;
+			break;
+		}
+		if (temp.up && !gb.board[temp.row - 1][temp.col].seen) {
+			gb.board[temp.row - 1][temp.col].seen = true;
+			q.push(gb.board[temp.row - 1][temp.col]);
+		}
+		if (temp.down && !gb.board[temp.row + 1][temp.col].seen) {
+			gb.board[temp.row + 1][temp.col].seen = true;
+			q.push(gb.board[temp.row + 1][temp.col]);
+		}
+		if (temp.left && !gb.board[temp.row][temp.col - 1].seen) {
+			gb.board[temp.row][temp.col - 1].seen = true;
+			q.push(gb.board[temp.row][temp.col - 1]);
+		}
+		if (temp.right && !gb.board[temp.row][temp.col + 1].seen) {
+			gb.board[temp.row][temp.col + 1].seen = true;
+			q.push(gb.board[temp.row][temp.col + 1]);
+		}
+	}
+
+	for (int row = 0; row < 9; row++)
+		for (int col = 0; col < 9; col++)
+			gb.board[row][col].seen = false;
+	return check;
 }
 
 // places walls if placeable
@@ -54,21 +125,33 @@ bool Board::placeWalls(int player, int row, int col, string dir) {
 			gb.board[row][col + 1].down = false;
 			gb.board[row + 1][col].up = false;
 			gb.board[row + 1][col + 1].up = false;
-		}
-		else
+			if (!checkNotBlocked(player)) {
+				gb.board[row][col].down = true;
+				gb.board[row][col + 1].down = true;
+				gb.board[row + 1][col].up = true;
+				gb.board[row + 1][col + 1].up = true;
+				return false;
+			}
+		} else
 			return false;
 	} else {
 		for (int i = 0; i < wallCounter; i++) {
 			if (walls[i].row == row && walls[i].col == col && walls[i].dir.compare("h") == 0)
 				return false;
 		}
-		if (row < 8 && gb.board[row][col].right && gb.board[row][col + 1].right) {
+		if (row < 8 && gb.board[row][col].right && gb.board[row + 1][col].right) {
 			gb.board[row][col].right = false;
 			gb.board[row + 1][col].right = false;
 			gb.board[row][col + 1].left = false;
 			gb.board[row + 1][col + 1].left = false;
-		}
-		else
+			if (!checkNotBlocked(player)) {
+				gb.board[row][col].right = true;
+				gb.board[row + 1][col].right = true;
+				gb.board[row][col + 1].left = true;
+				gb.board[row + 1][col + 1].left = true;
+				return false;
+			}
+		} else
 			return false;
 	}
 	Wall temp;

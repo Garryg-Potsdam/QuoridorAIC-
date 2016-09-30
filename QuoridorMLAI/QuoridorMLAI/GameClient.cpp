@@ -37,7 +37,6 @@ void AIPlaceWalls() {
 	int col = -1;
 	string direction = "";
 	string message1 = "AI Wall: v - for Vertical |. /n h - for Horizontal __. ";
-	cout << message1;
 	
 	bool success = false;
 	while (!success) {
@@ -67,7 +66,7 @@ void AIPlaceWalls() {
 		}
 		success = board.placeWalls(ai, row, col, direction);
 		if (!success) {
-			message1 = "Invalid wall try again. " + message1;
+			cout << "Invalid wall try again." << endl;
 			row = -1;
 			col = -1;
 			direction = "";
@@ -111,13 +110,13 @@ void HumanPlaceWalls() {
 		}
 		success = board.placeWalls(humanPlayer, row, col, direction);
 		if (!success) {
-			message1 = "Invalid wall try again. " + message1;
+			cout << "Invalid wall try again." << endl;
 			row = -1;
 			col = -1;
 			direction = "";
 		}
 	}
-	cout << "Human Wall: The wall was successfully places at [(" << row << ", " << col << "), " << direction << "]" << endl;
+	cout << "Human Wall: The wall was successfully placed at [(" << row << ", " << col << "), " << direction << "]" << endl;
 }
 
 void AIMovePawn() {
@@ -134,7 +133,7 @@ void AIMovePawn() {
 		cout << direction;
 		success = board.movePawn(ai, direction);
 		if (!success) {
-			message1 = "Invalid move try again. " + message1;
+			cout << "Invalid move try again. " << endl;
 			direction = "";
 		}
 	}
@@ -155,7 +154,7 @@ void HumanMovePawn() {
 		}
 		success = board.movePawn(humanPlayer, direction);
 		if (!success) {
-			message1 = "Invalid move try again. " + message1;
+			cout << "Invalid move try again. " << endl;
 			direction = "";
 		}
 	}

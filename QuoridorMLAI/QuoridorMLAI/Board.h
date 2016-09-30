@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-
+#include <queue>
 using namespace std;
 
 
@@ -19,6 +19,18 @@ enum Direction {
 	LEFTDOWN,
 	RIGHTUP,
 	RIGHTDOWN
+};
+
+struct Square {
+	int row;
+	int col;
+	bool seen;
+	bool up, down, left, right;
+};
+
+// The game board of squares
+struct GameBoard {
+	Square board[9][9];
 };
 
 struct Pawn {
@@ -41,11 +53,12 @@ public:
 	string getWinner();
 
 private:
+	GameBoard gb;	
 	Pawn pOne, pTwo;
 	int wallCounter = 0;
 	Wall walls[20];
 	void setPawns();
 	bool PawnMove(Pawn &player, Direction d, int p);
-	
+	bool checkNotBlocked(int player);
 
 };
