@@ -44,6 +44,8 @@ struct Wall {
 	string dir;
 };
 
+
+
 public:	
 	Board();	
 	string PrintBoard();
@@ -59,6 +61,5 @@ private:
 	Wall walls[20];
 	void setPawns();
 	bool PawnMove(Pawn &player, Direction d, int p);
-	bool checkNotBlocked(int player);
-
+	bool checkNotBlocked();
 };

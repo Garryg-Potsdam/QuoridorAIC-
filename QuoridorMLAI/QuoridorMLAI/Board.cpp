@@ -30,7 +30,8 @@ Board::Board() {
 	setPawns();
 }
 
-bool Board::checkNotBlocked(int player) {
+// Post-Condition: checks if a player is blocked or not
+bool Board::checkNotBlocked() {
 	queue<Square> q;
 	bool check = false;
 	// check player 1
