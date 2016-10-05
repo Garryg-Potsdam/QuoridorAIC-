@@ -30,11 +30,11 @@
     <ClCompile Include="Board.cpp">
       <Filter>Source Files\Board</Filter>
     </ClCompile>
-    <ClCompile Include="GameClient.cpp">
-      <Filter>Source Files\GameClient</Filter>
-    </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QuorClient.cpp">
+      <Filter>Source Files\GameClient</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
