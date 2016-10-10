@@ -8,6 +8,7 @@ Board::Board() {
 	gb = new GameBoard;
 	setPawns();
 
+	// sets up the board
 	for (int row = 0; row < 9; row++)
 		for (int col = 0; col < 9; col++) {
 			gb->board[row][col] = new Square;
@@ -79,6 +80,7 @@ string Board::getWinner() {
 // Post-Condition: moves a pawn
 // Returns: true if successful false otherwise
 bool Board::movePawn(int player, string move) {
+	// convert the move to an enum for PawnMove switches
 	Direction d;
 	if (move.compare("up") == 0)
 		d = UP;
@@ -117,67 +119,74 @@ bool Board::movePawn(int player, string move) {
 // Post-Condition: places a wall
 // Returns: true if successful false otherwise
 bool Board::placeWalls(int player, int row, int col, string dir) {
+	// does the player have a wall left to place
 	if (player == 1) {
-		if (pOne->wallsLeft > 0)
-			pOne->wallsLeft--;
-		else
+		if (pOne->wallsLeft == 0)			
+			return false;
+	} else {
+		if (pTwo->wallsLeft == 0)			
 			return false;
 	}
-	else {
-		if (pTwo->wallsLeft > 0)
-			pTwo->wallsLeft--;
-		else
+
+	// Already have a wall at this location
+	for (int i = 0; i < wallCounter; i++)
+		if (walls[i].row == row && walls[i].col == col)
 			return false;
-	}
-	if (dir.compare("h") == 0) {
-		for (int i = 0; i < wallCounter; i++) {
-			if (walls[i].row == row && walls[i].col == col && walls[i].dir.compare("v") == 0)
-				return false;
-		}
+
+	// Check for type of wall to place
+	if (dir.compare("h") == 0) {		
+		// break the connections for the horizontal wall placement
 		if (col < 8 && gb->board[row][col]->down && gb->board[row][col + 1]->down) {
 			gb->board[row][col]->down = false;
 			gb->board[row][col + 1]->down = false;
 			gb->board[row + 1][col]->up = false;
 			gb->board[row + 1][col + 1]->up = false;
-			if (!checkNotBlocked()) {
+			if (!checkNotBlocked()) { // did the wall block off a player
 				gb->board[row][col]->down = true;
 				gb->board[row][col + 1]->down = true;
 				gb->board[row + 1][col]->up = true;
 				gb->board[row + 1][col + 1]->up = true;
 				return false;
 			}
-		}
-		else
+		} else
 			return false;
-	}
-	else {
-		for (int i = 0; i < wallCounter; i++) {
-			if (walls[i].row == row && walls[i].col == col && walls[i].dir.compare("h") == 0)
-				return false;
-		}
+	} else {
+		// break the connections for the vertical wall placement
 		if (row < 8 && gb->board[row][col]->right && gb->board[row + 1][col]->right) {
 			gb->board[row][col]->right = false;
 			gb->board[row + 1][col]->right = false;
 			gb->board[row][col + 1]->left = false;
 			gb->board[row + 1][col + 1]->left = false;
-			if (!checkNotBlocked()) {
+			if (!checkNotBlocked()) { // did the wall block off a player
 				gb->board[row][col]->right = true;
 				gb->board[row + 1][col]->right = true;
 				gb->board[row][col + 1]->left = true;
 				gb->board[row + 1][col + 1]->left = true;
 				return false;
 			}
-		}
-		else
+		} else
 			return false;
 	}
+
+	// does the player have a wall left to place
+	if (player == 1)
+		pOne->wallsLeft--;
+	else
+		pTwo->wallsLeft--;
+	
+	// Make the temp wall
 	Wall temp;
 	temp.row = row;
 	temp.col = col;
 	temp.dir = dir;
+
+	// store the wall in the walls array
 	walls[wallCounter] = temp;
+
+	// increment the current location into the walls array
 	wallCounter++;
 
+	// Wall was successfully placed
 	return true;
 }
 
@@ -335,6 +344,8 @@ bool Board::checkNotBlocked() {
 	// check player 1
 	gb->board[pOne->row][pOne->col]->seen = true;
 	q.push(gb->board[pOne->row][pOne->col]);	
+	
+	// Use breadth first to make sure we can still finish the game
 	while (!q.empty()) {
 		Square * temp = q.front();
 		q.pop();
@@ -359,17 +370,27 @@ bool Board::checkNotBlocked() {
 			q.push(gb->board[temp->row][temp->col + 1]);
 		}
 	}
+
+	// empty the queue
 	while (!q.empty())
 		q.pop();
+
+	// reset all the seen booleans
 	for (int row = 0; row < 9; row++)
 		for (int col = 0; col < 9; col++)
 			gb->board[row][col]->seen = false;
+
+	// reset check
 	if (!check)
 		return check;
 	check = false;
+
+
 	// check player 2
 	q.push(gb->board[pTwo->row][pTwo->col]);
 	gb->board[pTwo->row][pTwo->col]->seen = true;
+	
+	// User breadth first to check if player 2 is blocked
 	while (!q.empty()) {
 		Square * temp = q.front();
 		q.pop();
@@ -395,14 +416,11 @@ bool Board::checkNotBlocked() {
 		}
 	}
 
+	// reset all the seens to false
 	for (int row = 0; row < 9; row++)
 		for (int col = 0; col < 9; col++)
 			gb->board[row][col]->seen = false;
+
+	// return the results
 	return check;
 }
-
-
-
-
-
-
