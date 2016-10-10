@@ -1,96 +1,100 @@
 #include "Board.h"
 
-// Keep trach of whos turn it is
-int humanPlayer = 0;
-int ai = 1;
-
-// Intance of the board
-Board board;
 
 // Runs through the game start up process
-void startGame();
-
-// Requests a move from the AI
-void AIMove();
-
-// Requests a pawn move from the AI
-void AIMovePawn();
-
-// Requests a wall move from the AI
-void AIPlaceWalls();
+int startGame();
 
 // Requests type of move player wants to perform
-void humanMove();
+void humanMove(Board &board, int humanPlayer);
 
 // requests what pawn move the human player wants
-void HumanMovePawn();
+void HumanMovePawn(Board &board, int humanPlayer);
 
 // requests the wall that the human play wants to play
-void HumanPlaceWalls();
+void HumanPlaceWalls(Board &board, int humanPlayer);
+
+// Parameters: move - the move string
+// Returns: true if it is a valid move string false otherwise
+bool contains(string move);
+
+// Requests a move from the AI
+void AIMove(Board &board, int humanPlayer);
+
+// Requests a pawn move from the AI
+void AIMovePawn(Board &board, int ai);
+
+// Requests a wall move from the AI
+void AIPlaceWalls(Board &board, int ai);
 
 
 // Main client function for game of Quoridor
 int main() {
 
-	// Start the game
-	startGame();
+	
+
+	// Intance of the board
+	Board * board;
+	board = new Board;
+	
+	// Keep trach of whos turn it is
+	int humanPlayer = startGame();
 
 	// TODO: add initial board delivery to AI
 
 	// Print the initial board for the human player
-	cout << board.PrintBoard() << endl;
+	cout << board->toString() << endl;
 
 	// while there is no winner keep playing
-	while (!board.checkWinner()) {
+	while (!board->checkWinner()) {
 		// basic move checks
 		if (humanPlayer == 1)
-			humanMove();
+			humanMove(*board, humanPlayer);
 		else
-			AIMove();
+			AIMove(*board, humanPlayer);
 		// someone moved print the board
-		cout << board.PrintBoard() << endl;		
+		cout << board->toString() << endl;		
 
 		// basic move check
-		if (board.checkWinner())
+		if (board->checkWinner())
 			break;
 		if (humanPlayer == 2)
-			humanMove();
+			humanMove(*board, humanPlayer);
 		else
-			AIMove();
+			AIMove(*board, humanPlayer);
 
 		// someone moved print the board again
-		cout << board.PrintBoard() << endl;		
+		cout << board->toString() << endl;		
 	};	
 
 	// TODO: add connections to AI for delivering information
 
 	// tell the human who won
-	cout << "The winner is " << board.getWinner() << "!" << endl;	
-	int x;
-	cin >> x;
+	cout << "The winner is " << board->getWinner() << "!" << endl;	
+	
+	delete board;
+
 	return 0;
 }
 
 
 // Runs through the game start up process
-void startGame() {
-
+int startGame() {
+	int humanPlayer = 0;
 	// Ask the human player what position they want
 	while (humanPlayer != 1 && humanPlayer != 2) {
 		cout << "Hello human. Will you be player 1 or player 2? ";
 		cin >> humanPlayer;
 	}
 
-	// set the AI position
-	if (humanPlayer == 1)
-		ai = 2;
-
 	// Confirm command
 	cout << "Great human! You are player " << humanPlayer << "!\n";
+	return humanPlayer;
 }
 
+// Parameters:       board - the board to play on
+//			   humanPlayer - the position of the human player
 // Requests type of move player wants to perform
-void humanMove() {
+void humanMove(Board &board, int humanPlayer) {
 
 	// store move variable and request string
 	string moveType = "";
@@ -104,25 +108,25 @@ void humanMove() {
 
 	// call correct move function based on move type
 	if (moveType.compare("pawn") == 0)
-		HumanMovePawn();
+		HumanMovePawn(board, humanPlayer);
 	else
-		HumanPlaceWalls();
+		HumanPlaceWalls(board, humanPlayer);
 }
 
+// Parameters:       board - the board to play on
+//			   humanPlayer - the position of the human player
 // requests what pawn move the human player wants
-void HumanMovePawn() {
+void HumanMovePawn(Board &board, int humanPlayer) {
 
 	// successful move boolean
 	bool success = false;
 	// store move direction string and request message
 	string direction = "";
-	string message1 = "Pick a direction human. (up(left,right), down(left,right), left(up, down), right(up, down)): ";
+	string message1 = "Pick a direction human. (up(left, right), down(left, right), left(up, down), right(up, down)): ";	
 
 	// checks if move choice is valid
 	while (!success) {
-		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0 &&
-			direction.compare("upleft") != 0 && direction.compare("upright") != 0 && direction.compare("downleft") != 0 && direction.compare("downright") != 0 &&
-			direction.compare("leftup") != 0 && direction.compare("leftdown") != 0 && direction.compare("rightup") != 0 && direction.compare("rightdown") != 0) {
+		while (!contains(direction)) {
 			cout << message1;
 			cin >> direction;
 		}
@@ -138,8 +142,10 @@ void HumanMovePawn() {
 	cout << "Pawn was successfully moved." << endl;
 }
 
+// Parameters:       board - the board to play on
+//			   humanPlayer - the position of the human player
 // requests the wall that the human play wants to play
-void HumanPlaceWalls() {
+void HumanPlaceWalls(Board &board, int humanPlayer) {
 
 	// row and col and direction(Vertical/Horizontal) placements storage for wall move
 	int row = -1;
@@ -159,21 +165,20 @@ void HumanPlaceWalls() {
 		}
 		if (direction.compare("h") == 0) {
 			while (row < 0 || row > 8) {
-				cout << "Pick a row from (0 - 8): ";
+				cout << "Pick a row from (0 - 7): ";
 				cin >> row;
 			}
 			while (col < 0 || col > 7) {
 				cout << "Pick a col from (0 - 7): ";
 				cin >> col;
 			}
-		}
-		else {
+		} else {
 			while (row < 0 || row > 7) {
 				cout << "Pick a row from (0 - 7): ";
 				cin >> row;
 			}
 			while (col < 0 || col > 8) {
-				cout << "Pick a col from (0 - 8): ";
+				cout << "Pick a col from (0 - 7): ";
 				cin >> col;
 			}
 		}
@@ -194,11 +199,22 @@ void HumanPlaceWalls() {
 	cout << "Human Wall: The wall was successfully placed at [(" << row << ", " << col << "), " << direction << "]" << endl;
 }
 
+// Parameters: move - the move string
+// Returns: true if it is a valid move string false otherwise
+bool contains(string move) {
+	string moves[12] = { "up", "down", "left", "right", "upleft", "upright", "downleft", "downright", "leftup", "leftdown", "rightup", "rightdown" };
+	for (int i = 0; i < 12; i++) {
+		if (move.compare(moves[i]) == 0)
+			return true;
+	}
+	return false;
+}
+
 // !!!!!ATTENTION!!!!!
 // NOTE: all the following functions will be drastically changed when AI is implemented
 
 // request move from the ai
-void AIMove() {
+void AIMove(Board &board, int humanPlayer) {
 	// Determine move type
 	string moveType = "";
 	string message1 = "Wall move or pawn move? ";
@@ -211,21 +227,22 @@ void AIMove() {
 
 	// perform move type call
 	if (moveType.compare("pawn") == 0)
-		AIMovePawn();
+		AIMovePawn(board, humanPlayer);
 	else
-		AIPlaceWalls();
+		AIPlaceWalls(board, humanPlayer);
 }
 
 // Requests a pawn move from the AI
-void AIMovePawn() {
+void AIMovePawn(Board &board, int humanPlayer) {
+	int ai = 1;
+	if (humanPlayer == 1)
+		ai = 2;
 
 	bool success = false;
 	string message1 = "AI is thinkin... ";
 	string direction = "";
 	while (!success) {
-		while (direction.compare("up") != 0 && direction.compare("down") != 0 && direction.compare("left") != 0 && direction.compare("right") != 0 &&
-			direction.compare("upleft") != 0 && direction.compare("upright") != 0 && direction.compare("downleft") != 0 && direction.compare("downright") != 0 &&
-			direction.compare("leftup") != 0 && direction.compare("leftdown") != 0 && direction.compare("rightup") != 0 && direction.compare("rightdown") != 0) {
+		while (!contains(direction)) {
 			cout << message1;
 			cin >> direction;
 		}
@@ -241,7 +258,7 @@ void AIMovePawn() {
 
 
 // Requests a wall move from the AI
-void AIPlaceWalls() {
+void AIPlaceWalls(Board &board, int ai) {
 	int row = -1;
 	int col = -1;
 	string direction = "";
@@ -255,7 +272,7 @@ void AIPlaceWalls() {
 		}
 		if (direction.compare("h") == 0) {
 			while (row < 0 || row > 8) {
-				cout << "Pick a row from (0 - 8): ";
+				cout << "Pick a row from (0 - 7): ";
 				cin >> row;
 			}
 			while (col < 0 || col > 7) {
@@ -269,7 +286,7 @@ void AIPlaceWalls() {
 				cin >> row;
 			}
 			while (col < 0 || col > 8) {
-				cout << "Pick a col from (0 - 8): ";
+				cout << "Pick a col from (0 - 7): ";
 				cin >> col;
 			}
 		}
