@@ -66,13 +66,30 @@ string Board::toString() {
 	return board;
 }
 
+// Parameters: i - int to turn to string
+// Returns: string of the passed in int
+string Board::to_string(int i) {
+    std::stringstream ss;
+    ss << i;
+    return ss.str();
+}
+
+// Paramaters: s - string to turn to int
+// Returns: int of the passed in string
+int Board::stringToInt(string s) {
+    int x;
+    stringstream ss(s);
+    ss >> x;
+    return x;
+}
+
 // Returns: a string for printing the winner
-string Board::getWinner() {
+int Board::getWinner() {
 	if (pOne->row == 8)
-		return "Player 1";
+		return 1;
 	if (pTwo->row == 0)
-		return "Player 2";
-	return "No winner yet.";
+		return 2;
+	return 0;
 }
 
 // Parameters: player - the player whos pawn made a move

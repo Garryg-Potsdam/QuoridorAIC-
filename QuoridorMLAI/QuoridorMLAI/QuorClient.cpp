@@ -1,36 +1,38 @@
 #include "Board.h"
-
+#include "QuorAI.h"
 
 // Runs through the game start up process
 int startGame();
+
+// Returns: the human player number
+int getHumanSpot();
 
 // Requests type of move player wants to perform
 void humanMove(Board &board, int humanPlayer);
 
 // requests what pawn move the human player wants
-void HumanMovePawn(Board &board, int humanPlayer);
+bool HumanMovePawn(Board &board, int humanPlayer);
 
 // requests the wall that the human play wants to play
-void HumanPlaceWalls(Board &board, int humanPlayer);
+bool HumanPlaceWalls(Board &board, int humanPlayer);
 
 // Parameters: move - the move string
 // Returns: true if it is a valid move string false otherwise
 bool contains(string move);
 
 // Requests a move from the AI
-void AIMove(Board &board, int humanPlayer);
+void AIMove(QuorAI &ai, Board &board, int humanPlayer);
 
 // Requests a pawn move from the AI
-void AIMovePawn(Board &board, int ai);
+bool AIMovePawn(Board &board, int ai, string move);
 
 // Requests a wall move from the AI
-void AIPlaceWalls(Board &board, int ai);
+bool AIPlaceWalls(Board &board, int ai, string move);
 
+QuorAI *aiOne, *aiTwo;
 
 // Main client function for game of Quoridor
 int main() {
-
-	
 
 	// Intance of the board
 	Board * board;
@@ -38,114 +40,157 @@ int main() {
 	
 	// Keep trach of whos turn it is
 	int humanPlayer = startGame();
-
-	// TODO: add initial board delivery to AI
-
+    
+    aiOne->setMostRecentBoard(board->toString());
+    
 	// Print the initial board for the human player
+	//cout << board->toString() << endl;
+
+    if (humanPlayer != -1) {
+    	// while there is no winner keep playing
+	    while (!board->checkWinner()) {
+		    // basic move checks
+		    if (humanPlayer == 1)
+			    humanMove(*board, humanPlayer);
+		    else
+			    AIMove(*aiOne, *board, 1);
+    		// someone moved print the board
+	    	//cout << board->toString() << endl;		
+
+		    // basic move check
+    		if (board->checkWinner())
+	    		break;
+
+		    if (humanPlayer == 2)
+			    humanMove(*board, humanPlayer);
+    		else
+	    		AIMove(*aiOne, *board, 2);
+    
+	    	// someone moved print the board again
+		    //cout << board->toString() << endl;		
+	    };
+    } else {	
+		aiTwo->setMostRecentBoard(board->toString());
+        while (!board->checkWinner()) {
+            // ai one moves
+            AIMove(*aiOne, *board, 1);
+            // update the printed board
+            //cout << board->toString() << endl;
+
+            // check if ai one won
+            if (board->checkWinner())
+                break;
+
+            // ai two moves
+            AIMove(*aiTwo, *board, 2);
+            // update the printed board
+            //cout << board->toString() << endl;
+        }
+		aiTwo->giveWinner(board->getWinner());
+    }
+
+	// tell what player won
+	//cout << "The winner is Player " << board->getWinner() << "!" << endl;
 	cout << board->toString() << endl;
-
-	// while there is no winner keep playing
-	while (!board->checkWinner()) {
-		// basic move checks
-		if (humanPlayer == 1)
-			humanMove(*board, humanPlayer);
-		else
-			AIMove(*board, humanPlayer);
-		// someone moved print the board
-		cout << board->toString() << endl;		
-
-		// basic move check
-		if (board->checkWinner())
-			break;
-		if (humanPlayer == 2)
-			humanMove(*board, humanPlayer);
-		else
-			AIMove(*board, humanPlayer);
-
-		// someone moved print the board again
-		cout << board->toString() << endl;		
-	};	
-
-	// TODO: add connections to AI for delivering information
-
-	// tell the human who won
-	cout << "The winner is " << board->getWinner() << "!" << endl;	
-	
+	aiOne->giveWinner(board->getWinner());
 	delete board;
 
 	return 0;
 }
 
-
 // Runs through the game start up process
 int startGame() {
-	int humanPlayer = 0;
+	int amountOfAIs = 2;
 	// Ask the human player what position they want
-	while (humanPlayer != 1 && humanPlayer != 2) {
-		cout << "Hello human. Will you be player 1 or player 2? ";
-		cin >> humanPlayer;
-	}
+	//while (amountOfAIs != 1 && amountOfAIs != 2) {
+	//	cout << "Are you playing 1(Yes) or 2(No): ";
+	//	cin >> amountOfAIs;
+	//}
+    if (amountOfAIs == 1) {
+        // get the human player
+        int human = getHumanSpot();
 
-	// Confirm command
-	cout << "Great human! You are player " << humanPlayer << "!\n";
-	return humanPlayer;
+        // set ai player
+        if (human == 1)
+            aiOne = new QuorAI(2);
+        else
+            aiOne = new QuorAI(1);
+
+        // announce human player
+	    cout << "Great human! You are player " << human << "!\n";
+
+        return human;
+    } else { // no human player set AIs
+        aiOne = new QuorAI(1);
+        aiTwo = new QuorAI(2);
+    }
+
+	// if not human player return -1
+	return -1;
+}
+
+// Returns: the human player number
+int getHumanSpot() {
+    int playerNum = 0;
+    while (playerNum != 1 && playerNum != 2) {
+        cout << "What player do you want to be (1 or 2): ";
+        cin >> playerNum;
+    }
+    return playerNum; 
 }
 
 // Parameters:       board - the board to play on
-//			   humanPlayer - the position of the human player
+//		humanPlayer - the position of the human player
 // Requests type of move player wants to perform
 void humanMove(Board &board, int humanPlayer) {
-
+    bool success = false;
+    while (!success) {
 	// store move variable and request string
-	string moveType = "";
-	string message1 = "Wall move or pawn move? ";
+    	string moveType = "";
+    	string message1 = "Wall move or pawn move? ";
 
 	// detemine move type
-	while (moveType.compare("wall") != 0 && moveType.compare("pawn") != 0) {
-		cout << message1;
-		cin >> moveType;
-	}
+    	while (moveType.compare("wall") != 0 && moveType.compare("pawn") != 0) {
+		    cout << message1;
+		    cin >> moveType;
+	    }
 
 	// call correct move function based on move type
-	if (moveType.compare("pawn") == 0)
-		HumanMovePawn(board, humanPlayer);
-	else
-		HumanPlaceWalls(board, humanPlayer);
+    	if (moveType.compare("pawn") == 0)
+		    success = HumanMovePawn(board, humanPlayer);            
+	    else
+	    	success = HumanPlaceWalls(board, humanPlayer);
+    }
 }
 
 // Parameters:       board - the board to play on
 //			   humanPlayer - the position of the human player
 // requests what pawn move the human player wants
-void HumanMovePawn(Board &board, int humanPlayer) {
+bool HumanMovePawn(Board &board, int humanPlayer) {
 
-	// successful move boolean
-	bool success = false;
 	// store move direction string and request message
 	string direction = "";
 	string message1 = "Pick a direction human. (up(left, right), down(left, right), left(up, down), right(up, down)): ";	
 
-	// checks if move choice is valid
-	while (!success) {
-		while (!contains(direction)) {
-			cout << message1;
-			cin >> direction;
-		}
-		// set success to true or false if false try again
-		success = board.movePawn(humanPlayer, direction);
-		if (!success) {
-			cout << "Invalid move try again. " << endl;
-			direction = "";
-		}
+	// checks if move choice is valid	
+	while (!contains(direction)) {
+		cout << message1;
+		cin >> direction;
 	}
+    bool success = board.movePawn(humanPlayer, direction);
 
 	// announce to player the results
-	cout << "Pawn was successfully moved." << endl;
+    if (success)
+        cout << "Pawn was successfully moved." << endl;
+    else
+        cout << "Invalid pawn move" << endl;
+    return success;
 }
 
 // Parameters:       board - the board to play on
 //			   humanPlayer - the position of the human player
 // requests the wall that the human play wants to play
-void HumanPlaceWalls(Board &board, int humanPlayer) {
+bool HumanPlaceWalls(Board &board, int humanPlayer) {
 
 	// row and col and direction(Vertical/Horizontal) placements storage for wall move
 	int row = -1;
@@ -153,50 +198,37 @@ void HumanPlaceWalls(Board &board, int humanPlayer) {
 	string direction = "";
 	// Wall move request message
 	string message1 = "Human Wall: v - for Vertical |. /n h - for Horizontal __. ";
-	
-	// successful wall placement boolean
-	bool success = false;
 
-	// This checks for a valid wall arrangement to avoid having to make a call to the board
-	while (!success) {
-		while (direction.compare("h") != 0 && direction.compare("v") != 0) {
-			cout << message1;
-			cin >> direction;
+	while (direction.compare("h") != 0 && direction.compare("v") != 0) {
+		cout << message1;
+		cin >> direction;
+	}
+	if (direction.compare("h") == 0) {
+		while (row < 0 || row > 8) {
+			cout << "Pick a row from (0 - 7): ";
+			cin >> row;
 		}
-		if (direction.compare("h") == 0) {
-			while (row < 0 || row > 8) {
-				cout << "Pick a row from (0 - 7): ";
-				cin >> row;
-			}
-			while (col < 0 || col > 7) {
-				cout << "Pick a col from (0 - 7): ";
-				cin >> col;
-			}
-		} else {
-			while (row < 0 || row > 7) {
-				cout << "Pick a row from (0 - 7): ";
-				cin >> row;
-			}
-			while (col < 0 || col > 8) {
-				cout << "Pick a col from (0 - 7): ";
-				cin >> col;
-			}
+		while (col < 0 || col > 7) {
+			cout << "Pick a col from (0 - 7): ";
+			cin >> col;
 		}
-
-		// TODO: allow to cancel a specific move type to try something else
-
-		// while success is false keep asking
-		success = board.placeWalls(humanPlayer, row, col, direction);
-		if (!success) {
-			cout << "Invalid wall try again." << endl;
-			row = -1;
-			col = -1;
-			direction = "";
+	} else {
+		while (row < 0 || row > 7) {
+			cout << "Pick a row from (0 - 7): ";
+			cin >> row;
+		}
+		while (col < 0 || col > 8) {
+			cout << "Pick a col from (0 - 7): ";
+			cin >> col;
 		}
 	}
-
-	// Confirm successful wall placement to human player
-	cout << "Human Wall: The wall was successfully placed at [(" << row << ", " << col << "), " << direction << "]" << endl;
+    
+    bool success = board.placeWalls(humanPlayer, row, col, direction);
+	if (!success) 
+		cout << "Invalid wall try again." << endl;
+	else
+	    cout << "Human Wall: The wall was successfully placed at [(" << row << ", " << col << "), " << direction << "]" << endl;
+    return success;
 }
 
 // Parameters: move - the move string
@@ -210,93 +242,44 @@ bool contains(string move) {
 	return false;
 }
 
-// !!!!!ATTENTION!!!!!
-// NOTE: all the following functions will be drastically changed when AI is implemented
-
-// request move from the ai
-void AIMove(Board &board, int humanPlayer) {
-	// Determine move type
-	string moveType = "";
-	string message1 = "Wall move or pawn move? ";
-
-	// gather and store the move type
-	while (moveType.compare("wall") != 0 && moveType.compare("pawn") != 0) {
-		cout << message1;
-		cin >> moveType;
-	}
-
-	// perform move type call
-	if (moveType.compare("pawn") == 0)
-		AIMovePawn(board, humanPlayer);
-	else
-		AIPlaceWalls(board, humanPlayer);
+// Parameters:    &ai - the ai whose move it is
+//             &board - the gameboard
+//              aiNum - the ais number
+// Post-Condition: commuicates AI move
+void AIMove(QuorAI &ai, Board &board, int aiNum) {
+    bool success = false;
+    while (!success) {
+		ai.setMostRecentBoard(board.toString());
+        string currMove = ai.getNextMove();
+    
+        string moveType = currMove.substr(0, 4);
+        currMove.erase(0, 5);
+		if (moveType.compare("pawn") == 0) {
+	    	success = AIMovePawn(board, aiNum, currMove);
+        } else {
+	    	success = AIPlaceWalls(board, aiNum, currMove);
+        }
+    }
 }
 
 // Requests a pawn move from the AI
-void AIMovePawn(Board &board, int humanPlayer) {
-	int ai = 1;
-	if (humanPlayer == 1)
-		ai = 2;
-
-	bool success = false;
-	string message1 = "AI is thinkin... ";
-	string direction = "";
-	while (!success) {
-		while (!contains(direction)) {
-			cout << message1;
-			cin >> direction;
-		}
-		cout << direction;
-		success = board.movePawn(ai, direction);
-		if (!success) {
-			cout << "Invalid move try again. " << endl;
-			direction = "";
-		}
-	}
-	cout << "Pawn was successfully moved." << endl;
+bool AIMovePawn(Board &board, int ai, string move) {
+    return board.movePawn(ai, move);    
 }
 
 
 // Requests a wall move from the AI
-void AIPlaceWalls(Board &board, int ai) {
-	int row = -1;
-	int col = -1;
-	string direction = "";
-	string message1 = "AI Wall: v - for Vertical |. /n h - for Horizontal __. ";
+// h 3 4
+bool AIPlaceWalls(Board &board, int ai, string move) {
+    string direction = move.substr(0, 1);
+    move.erase(0, 2);
+	int row = board.stringToInt(move.substr(0, 1));
+    move.erase(0, 2);
+	int col = board.stringToInt(move);
 
-	bool success = false;
-	while (!success) {
-		while (direction.compare("h") != 0 && direction.compare("v") != 0) {
-			cout << message1;
-			cin >> direction;
-		}
-		if (direction.compare("h") == 0) {
-			while (row < 0 || row > 8) {
-				cout << "Pick a row from (0 - 7): ";
-				cin >> row;
-			}
-			while (col < 0 || col > 7) {
-				cout << "Pick a col from (0 - 7): ";
-				cin >> col;
-			}
-		}
-		else {
-			while (row < 0 || row > 7) {
-				cout << "Pick a row from (0 - 7): ";
-				cin >> row;
-			}
-			while (col < 0 || col > 8) {
-				cout << "Pick a col from (0 - 7): ";
-				cin >> col;
-			}
-		}
-		success = board.placeWalls(ai, row, col, direction);
-		if (!success) {
-			cout << "Invalid wall try again." << endl;
-			row = -1;
-			col = -1;
-			direction = "";
-		}
-	}
-	cout << "AI Wall: The wall was successfully places at [(" << row << ", " << col << "), " << direction << "]" << endl;
+    // if succesful move print
+    bool success = board.placeWalls(ai, row, col, direction);
+    //if (success)
+    //    cout << "AI Wall: The wall was successfully placed at [(" << row << ", " << col << "), " << direction << "]" << endl;
+    return success;
 }

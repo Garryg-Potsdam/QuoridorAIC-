@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <queue>
+#include <sstream>
+
 using namespace std;
 
 // A board class for the game of Quoridor
@@ -58,8 +60,8 @@ public:
 	// Returns: the board as a string
 	string toString();	
 
-	// Returns: a string for printing the winner
-	string getWinner();
+	// Returns: int for printing the winner
+	int getWinner();
 	
 	// Parameters: player - the player whos pawn made a move
 	//               move - the direction the player chose to move
@@ -77,8 +79,16 @@ public:
 
 	// Returns: true if there is a winner false otherwise
 	bool checkWinner();
+	
+	// Paramaters: i - int to turn to string
+	// Returns: string of the passed in int
+	string to_string(int i);
+    
+	// Paramaters: s - string to turn to int
+	// Returns: int of the passed in string
+	int stringToInt(string s);
 
-private:
+private:	
 
 	// The gameboard of squares
 	GameBoard * gb;
